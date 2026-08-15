@@ -124,15 +124,15 @@
     "error": "Error"
   },
   "stage": {
-    "Warteschlange": "Cola",
-    "Wird gestartet": "Iniciando",
-    "Medium wird analysiert": "Analizando contenido",
+    "Queued": "En cola",
+    "Starting": "Iniciando",
+    "Analyzing media": "Analizando contenido",
     "Download": "Descarga",
-    "Download abgeschlossen": "Descarga completada",
-    "MP3 wird erstellt": "Creando MP3",
-    "MP4 wird verarbeitet": "Procesando MP4",
-    "Fertig": "Listo",
-    "Fehler": "Error"
+    "Download completed": "Descarga completada",
+    "Creating MP3": "Creando MP3",
+    "Processing MP4": "Procesando MP4",
+    "Finished": "Completado",
+    "Error": "Error"
   },
   "stats": {
     "active": "Activas",

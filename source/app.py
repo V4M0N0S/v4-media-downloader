@@ -188,7 +188,7 @@ def upload():
     try:
         content = file.read().decode('utf-8-sig')
     except UnicodeDecodeError:
-        return jsonify({'success': False, 'error': 'TXT-File muss UTF-8 sein.'}), 400
+        return jsonify({'success': False, 'error': 'TXT file must be UTF-8 encoded.'}), 400
 
     output_format = (request.form.get('format') or 'mp3').lower().strip()
     if output_format not in {'mp3', 'mp4'}:

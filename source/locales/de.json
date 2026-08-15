@@ -124,15 +124,15 @@
     "error": "Fehler"
   },
   "stage": {
-    "Warteschlange": "Warteschlange",
-    "Wird gestartet": "Wird gestartet",
-    "Medium wird analysiert": "Medium wird analysiert",
+    "Queued": "Warteschlange",
+    "Starting": "Wird gestartet",
+    "Analyzing media": "Medium wird analysiert",
     "Download": "Download",
-    "Download abgeschlossen": "Download abgeschlossen",
-    "MP3 wird erstellt": "MP3 wird erstellt",
-    "MP4 wird verarbeitet": "MP4 wird verarbeitet",
-    "Fertig": "Fertig",
-    "Fehler": "Fehler"
+    "Download completed": "Download abgeschlossen",
+    "Creating MP3": "MP3 wird erstellt",
+    "Processing MP4": "MP4 wird verarbeitet",
+    "Finished": "Fertig",
+    "Error": "Fehler"
   },
   "stats": {
     "active": "Aktiv",
