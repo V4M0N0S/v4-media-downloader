@@ -51,8 +51,6 @@ if [[ -x "$INSTALLER_LOCAL" ]]; then
     INSTALLER="$INSTALLER_LOCAL"
 elif [[ -x "$SCRIPT_DIR/install.sh" ]]; then
     INSTALLER="$SCRIPT_DIR/install.sh"
-elif [[ -x "$SCRIPT_DIR/install-v56-en.sh" ]]; then
-    INSTALLER="$SCRIPT_DIR/install-v56-en.sh"
 else
     die "install.sh was not found. Place install.sh next to update.sh or run install.sh first."
 fi
