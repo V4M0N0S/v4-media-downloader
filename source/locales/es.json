@@ -1,0 +1,173 @@
+{
+  "meta": {
+    "code": "es",
+    "name": "Spanish",
+    "native_name": "Español",
+    "locale": "es-ES"
+  },
+  "app": {
+    "tagline": "Make downloads great again!"
+  },
+  "language": {
+    "label": "Idioma"
+  },
+  "common": {
+    "paste": "Pegar",
+    "search": "Buscar",
+    "close": "Cerrar",
+    "info": "Info",
+    "success": "Listo",
+    "error": "Error",
+    "warning": "Aviso",
+    "web": "Web",
+    "live": "En directo",
+    "unknown_title": "Sin título"
+  },
+  "active": {
+    "eyebrow": "ACTIVOS",
+    "title": "Descargas",
+    "job": "Tarea",
+    "jobs": "Tareas",
+    "all_done": "Todas las descargas han terminado."
+  },
+  "download": {
+    "eyebrow": "NUEVA DESCARGA",
+    "title": "Añadir contenido",
+    "url_label": "Enlace de YouTube / Twitch",
+    "url_placeholder": "https://www.youtube.com/watch?v=... o enlace de Twitch",
+    "filename_label": "Nombre de archivo opcional",
+    "filename_placeholder": "p. ej. Clip divertido",
+    "format_label": "Formato de salida",
+    "format_mp4": "MP4 · Vídeo",
+    "format_mp3": "MP3 · Audio",
+    "analyze": "Cargar enlace",
+    "analyzing": "Cargando enlace...",
+    "start": "Iniciar descarga",
+    "txt_list": "Lista TXT",
+    "missing_url": "Introduce una URL de YouTube o Twitch.",
+    "analyze_first": "Primero introduce una URL de YouTube o Twitch.",
+    "analyze_failed": "No se pudo analizar.",
+    "analyzed_title": "Enlace analizado",
+    "analyzed": "Se cargaron el título, la fuente y las opciones disponibles.",
+    "start_failed": "No se pudo iniciar la descarga.",
+    "queued": "La descarga se añadió a la cola.",
+    "upload_failed": "Falló la subida.",
+    "txt_imported_title": "TXT importado",
+    "txt_imported": "Se añadieron {count} URLs.",
+    "clipboard_empty": "El portapapeles está vacío.",
+    "clipboard_added": "Enlace pegado.",
+    "clipboard_blocked": "El navegador bloqueó el acceso al portapapeles.",
+    "link_action": "Cargar enlace"
+  },
+  "analysis": {
+    "quality": "Calidad MP4",
+    "best_quality": "Mejor disponible",
+    "trim_start": "Inicio opcional",
+    "trim_end": "Fin opcional",
+    "twitch_vod": "VOD de Twitch detectado. Opcionalmente puedes descargar solo un fragmento.",
+    "twitch_clip": "Clip de Twitch detectado. Se descargará completo.",
+    "qualities_found": "Se detectaron {count} resoluciones de vídeo.",
+    "ready": "El contenido está listo para descargar.",
+    "best_short": "Mejor"
+  },
+  "search": {
+    "toggle": "Buscar en YouTube",
+    "eyebrow": "BÚSQUEDA EN YOUTUBE",
+    "title": "Búsqueda directa",
+    "close": "Cerrar búsqueda",
+    "placeholder": "Buscar en YouTube...",
+    "too_short": "El término de búsqueda es demasiado corto.",
+    "searching": "Buscando en YouTube...",
+    "failed": "La búsqueda falló.",
+    "results": "{count} resultados",
+    "no_results": "No se encontraron resultados.",
+    "use": "Seleccionar y analizar"
+  },
+  "library": {
+    "eyebrow": "BIBLIOTECA",
+    "title": "Archivos terminados",
+    "all": "Todos",
+    "search_placeholder": "Buscar archivos...",
+    "download_all": "Descargar todo",
+    "delete_all": "Eliminar todo",
+    "empty": "No hay archivos terminados que coincidan.",
+    "done": "Listo",
+    "play": "Reproducir",
+    "copy_name": "Copiar nombre",
+    "download": "Descargar",
+    "remove": "Eliminar",
+    "no_thumb": "SIN MINIATURA",
+    "confirm_delete": "¿Eliminar de verdad?\n\n{name}",
+    "delete_failed": "No se pudo eliminar.",
+    "deleted": "Archivo y miniatura eliminados.",
+    "confirm_delete_all": "¿Eliminar TODOS los {count} archivos terminados, incluidas las miniaturas?\n\nEsta acción no se puede deshacer.",
+    "delete_all_failed": "No se pudo eliminar todo.",
+    "deleted_all": "Se eliminaron {count} archivos.",
+    "filename_copied": "Nombre de archivo copiado.",
+    "copy_failed": "No se pudo copiar."
+  },
+  "jobs": {
+    "retry": "Reintentar",
+    "remove": "Eliminar",
+    "eta": "ETA",
+    "clip": "Fragmento",
+    "start": "Inicio",
+    "end": "Fin",
+    "action_failed": "La acción no está disponible."
+  },
+  "status": {
+    "waiting": "En espera",
+    "starting": "Iniciando",
+    "downloading": "Descargando",
+    "converting": "Convirtiendo",
+    "finished": "Listo",
+    "error": "Error"
+  },
+  "stage": {
+    "Warteschlange": "Cola",
+    "Wird gestartet": "Iniciando",
+    "Medium wird analysiert": "Analizando contenido",
+    "Download": "Descarga",
+    "Download abgeschlossen": "Descarga completada",
+    "MP3 wird erstellt": "Creando MP3",
+    "MP4 wird verarbeitet": "Procesando MP4",
+    "Fertig": "Listo",
+    "Fehler": "Error"
+  },
+  "stats": {
+    "active": "Activas",
+    "waiting": "En espera",
+    "done": "Listas",
+    "storage": "Almacenamiento"
+  },
+  "preview": {
+    "close": "Cerrar vista previa"
+  },
+  "bulk": {
+    "eyebrow": "IMPORTACIÓN MASIVA",
+    "title": "Importar lista TXT",
+    "description": "Una URL por línea. Se ignoran las líneas vacías y los comentarios que empiezan por #.",
+    "choose_file": "Elegir archivo TXT",
+    "close": "Cerrar importación masiva"
+  },
+  "cookies": {
+    "button": "Cookies de YouTube",
+    "active": "activo",
+    "inactive": "inactivo",
+    "unknown": "desconocido",
+    "eyebrow": "AUTENTICACIÓN YOUTUBE",
+    "title": "Importar cookies de YouTube",
+    "description": "Si YouTube solicita una comprobación de bot, pega aquí el contenido de un cookies.txt exportado en formato Netscape. El archivo se guarda solo en este servidor.",
+    "warning": "Las cookies pueden dar acceso a tu cuenta de YouTube. No las compartas y solo impórtalas en un servidor de confianza.",
+    "placeholder": "# Netscape HTTP Cookie File\\n.youtube.com\\tTRUE\\t/\\tTRUE\\t...",
+    "save": "Guardar cookies",
+    "delete": "Eliminar cookies",
+    "empty": "Primero pega el contenido de las cookies.",
+    "save_failed": "No se pudieron guardar las cookies.",
+    "saved": "Las cookies de YouTube se guardaron localmente y se usarán desde la próxima solicitud.",
+    "saved_title": "Cookies activas",
+    "delete_confirm": "¿Eliminar realmente las cookies de YouTube guardadas?",
+    "delete_failed": "No se pudieron eliminar las cookies.",
+    "deleted": "Se eliminaron las cookies de YouTube guardadas."
+  }
+}

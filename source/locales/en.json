@@ -1,0 +1,173 @@
+{
+  "meta": {
+    "code": "en",
+    "name": "English",
+    "native_name": "English",
+    "locale": "en-US"
+  },
+  "app": {
+    "tagline": "Make downloads great again!"
+  },
+  "language": {
+    "label": "Language"
+  },
+  "common": {
+    "paste": "Paste",
+    "search": "Search",
+    "close": "Close",
+    "info": "Info",
+    "success": "Done",
+    "error": "Error",
+    "warning": "Notice",
+    "web": "Web",
+    "live": "Live",
+    "unknown_title": "Untitled"
+  },
+  "active": {
+    "eyebrow": "ACTIVE",
+    "title": "Downloads",
+    "job": "Job",
+    "jobs": "Jobs",
+    "all_done": "All downloads are complete."
+  },
+  "download": {
+    "eyebrow": "NEW DOWNLOAD",
+    "title": "Add media",
+    "url_label": "YouTube / Twitch link",
+    "url_placeholder": "https://www.youtube.com/watch?v=... or Twitch link",
+    "filename_label": "Optional filename",
+    "filename_placeholder": "e.g. Funny Clip",
+    "format_label": "Output format",
+    "format_mp4": "MP4 · Video",
+    "format_mp3": "MP3 · Audio",
+    "analyze": "Load link",
+    "analyzing": "Loading link...",
+    "start": "Start download",
+    "txt_list": "TXT list",
+    "missing_url": "Please enter a YouTube or Twitch URL.",
+    "analyze_first": "Please enter a YouTube or Twitch URL first.",
+    "analyze_failed": "Analysis failed.",
+    "analyzed_title": "Link analyzed",
+    "analyzed": "Title, source and available options were loaded.",
+    "start_failed": "Download could not be started.",
+    "queued": "Download was added to the queue.",
+    "upload_failed": "Upload failed.",
+    "txt_imported_title": "TXT imported",
+    "txt_imported": "{count} URLs were added.",
+    "clipboard_empty": "Clipboard is empty.",
+    "clipboard_added": "Link pasted.",
+    "clipboard_blocked": "Clipboard access was blocked by the browser.",
+    "link_action": "Load link"
+  },
+  "analysis": {
+    "quality": "MP4 quality",
+    "best_quality": "Best available",
+    "trim_start": "Optional start",
+    "trim_end": "Optional end",
+    "twitch_vod": "Twitch VOD detected. You can optionally download only a section.",
+    "twitch_clip": "Twitch clip detected. The complete clip will be downloaded.",
+    "qualities_found": "{count} video resolutions detected.",
+    "ready": "Media is ready to download.",
+    "best_short": "Best"
+  },
+  "search": {
+    "toggle": "Search YouTube",
+    "eyebrow": "YOUTUBE SEARCH",
+    "title": "Direct search",
+    "close": "Close search",
+    "placeholder": "Search YouTube...",
+    "too_short": "Search term is too short.",
+    "searching": "Searching YouTube...",
+    "failed": "Search failed.",
+    "results": "{count} results",
+    "no_results": "No results found.",
+    "use": "Select & analyze"
+  },
+  "library": {
+    "eyebrow": "LIBRARY",
+    "title": "Finished files",
+    "all": "All",
+    "search_placeholder": "Search files...",
+    "download_all": "Download All",
+    "delete_all": "Delete All",
+    "empty": "No matching finished files.",
+    "done": "Done",
+    "play": "Play",
+    "copy_name": "Copy name",
+    "download": "Download",
+    "remove": "Remove",
+    "no_thumb": "NO THUMB",
+    "confirm_delete": "Really delete?\n\n{name}",
+    "delete_failed": "Delete failed.",
+    "deleted": "File and thumbnail deleted.",
+    "confirm_delete_all": "Really delete ALL {count} finished files including thumbnails?\n\nThis cannot be undone.",
+    "delete_all_failed": "Delete All failed.",
+    "deleted_all": "{count} files deleted.",
+    "filename_copied": "Filename copied.",
+    "copy_failed": "Could not copy."
+  },
+  "jobs": {
+    "retry": "Retry",
+    "remove": "Remove",
+    "eta": "ETA",
+    "clip": "Clip",
+    "start": "Start",
+    "end": "End",
+    "action_failed": "Action is not available."
+  },
+  "status": {
+    "waiting": "Waiting",
+    "starting": "Starting",
+    "downloading": "Downloading",
+    "converting": "Converting",
+    "finished": "Done",
+    "error": "Error"
+  },
+  "stage": {
+    "Warteschlange": "Queue",
+    "Wird gestartet": "Starting",
+    "Medium wird analysiert": "Analyzing media",
+    "Download": "Download",
+    "Download abgeschlossen": "Download complete",
+    "MP3 wird erstellt": "Creating MP3",
+    "MP4 wird verarbeitet": "Processing MP4",
+    "Fertig": "Done",
+    "Fehler": "Error"
+  },
+  "stats": {
+    "active": "Active",
+    "waiting": "Waiting",
+    "done": "Done",
+    "storage": "Storage"
+  },
+  "preview": {
+    "close": "Close preview"
+  },
+  "bulk": {
+    "eyebrow": "BULK IMPORT",
+    "title": "Import TXT list",
+    "description": "One URL per line. Empty lines and comments starting with # are ignored.",
+    "choose_file": "Choose TXT file",
+    "close": "Close bulk import"
+  },
+  "cookies": {
+    "button": "YouTube Cookies",
+    "active": "active",
+    "inactive": "inactive",
+    "unknown": "unknown",
+    "eyebrow": "YOUTUBE AUTH",
+    "title": "Import YouTube cookies",
+    "description": "If YouTube asks for a bot check, paste the contents of an exported Netscape-format cookies.txt here. The file is stored only on this server.",
+    "warning": "Cookies may provide access to your YouTube account. Never share them and only import them on a server you trust.",
+    "placeholder": "# Netscape HTTP Cookie File\\n.youtube.com\\tTRUE\\t/\\tTRUE\\t...",
+    "save": "Save cookies",
+    "delete": "Remove cookies",
+    "empty": "Paste cookie content first.",
+    "save_failed": "Cookies could not be saved.",
+    "saved": "YouTube cookies were stored locally and will be used from the next request.",
+    "saved_title": "Cookies active",
+    "delete_confirm": "Really remove the stored YouTube cookies?",
+    "delete_failed": "Cookies could not be removed.",
+    "deleted": "Stored YouTube cookies were removed."
+  }
+}

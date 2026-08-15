@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="de" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>V4 Media Downloader</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <h1>V4 Media Downloader <span class="version-tag">v1.0</span></h1>
+        <p data-i18n="app.tagline">Make downloads great again!</p>
+      </div>
+    </header>
+
+    <section class="stats" id="stats"></section>
+
+    <section id="activePanel" class="panel active-panel" hidden>
+      <div class="section-title active-title">
+        <div><div class="eyebrow" data-i18n="active.eyebrow">ACTIVE</div><h2 data-i18n="active.title">Downloads</h2></div>
+        <span id="activeSummary" class="active-summary"></span>
+      </div>
+      <div id="jobs" class="jobs"></div>
+    </section>
+
+    <section class="panel hero-panel" id="downloadPanel">
+      <div class="section-title hero-title">
+        <div><div class="eyebrow" data-i18n="download.eyebrow">NEW DOWNLOAD</div><h2 data-i18n="download.title">Medium hinzufügen</h2></div>
+        <div class="hero-tools">
+          <button id="searchToggleBtn" class="tool-button" type="button" data-i18n="search.toggle">YouTube suchen</button>
+          <button id="bulkToggleBtn" class="tool-button" type="button" data-i18n="download.txt_list">TXT-Liste</button>
+        </div>
+      </div>
+
+      <div class="field-grid compact-download-grid">
+        <label>
+          <span data-i18n="download.url_label">YouTube / Twitch Link</span>
+          <div class="input-with-action">
+            <input id="urlInput" type="url" data-i18n-placeholder="download.url_placeholder" placeholder="https://www.youtube.com/watch?v=... oder Twitch-Link">
+            <button id="pasteBtn" class="input-action" type="button" data-i18n="common.paste">Paste</button>
+          </div>
+        </label>
+        <label>
+          <span data-i18n="download.filename_label">Dateiname optional</span>
+          <input id="nameInput" type="text" data-i18n-placeholder="download.filename_placeholder" placeholder="z. B. Lustiger Clip">
+        </label>
+        <div class="load-link-wrap">
+          <span class="pseudo-label" data-i18n="download.link_action">Link</span>
+          <button id="analyzeBtn" class="primary load-link-btn" data-i18n="download.analyze">Link laden</button>
+        </div>
+      </div>
+
+      <div id="analysisCard" class="analysis-card" hidden aria-busy="false">
+        <div id="analysisSkeleton" class="analysis-skeleton" aria-hidden="true">
+          <div class="skeleton-thumb skeleton-block"></div>
+          <div class="skeleton-copy">
+            <div class="skeleton-badges"><span class="skeleton-chip skeleton-block"></span><span class="skeleton-chip skeleton-block short"></span></div>
+            <div class="skeleton-line skeleton-block title"></div>
+            <div class="skeleton-line skeleton-block meta"></div>
+            <div class="skeleton-controls">
+              <div class="skeleton-control skeleton-block"></div>
+              <div class="skeleton-control skeleton-block"></div>
+              <div class="skeleton-control wide skeleton-block"></div>
+            </div>
+            <div class="skeleton-footer">
+              <div class="skeleton-line skeleton-block hint"></div>
+              <div class="skeleton-button skeleton-block"></div>
+            </div>
+          </div>
+        </div>
+        <img id="analysisThumb" class="analysis-thumb" alt="">
+        <div class="analysis-main">
+          <div class="analysis-badges"><span id="analysisSource" class="source-pill"></span><span id="analysisKind" class="format-pill"></span></div>
+          <h3 id="analysisTitle"></h3>
+          <div id="analysisMeta" class="analysis-meta"></div>
+          <div class="analysis-options material-options">
+            <label id="formatWrap">
+              <span data-i18n="download.format_label">Ausgabeformat</span>
+              <select id="formatInput">
+                <option value="mp4" data-i18n="download.format_mp4">MP4 · Video</option>
+                <option value="mp3" data-i18n="download.format_mp3">MP3 · Audio</option>
+              </select>
+            </label>
+            <label id="qualityWrap">
+              <span data-i18n="analysis.quality">MP4 Qualität</span>
+              <select id="qualityInput"><option value="best" data-i18n="analysis.best_quality">Beste verfügbar</option></select>
+            </label>
+            <div id="trimWrap" class="trim-wrap" hidden>
+              <label><span data-i18n="analysis.trim_start">Start optional</span><input id="trimStart" placeholder="00:00:00"></label>
+              <label><span data-i18n="analysis.trim_end">Ende optional</span><input id="trimEnd" placeholder="00:10:00"></label>
+            </div>
+          </div>
+          <div class="analysis-footer">
+            <div id="analysisHint" class="analysis-hint"></div>
+            <button id="addBtn" class="primary analysis-download-btn" data-i18n="download.start">Download starten</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="youtubeSearchPanel" class="panel search-panel collapsible-panel" hidden>
+      <div class="section-title compact-title">
+        <div><div class="eyebrow" data-i18n="search.eyebrow">YOUTUBE SEARCH</div><h2 data-i18n="search.title">Direkte Suche</h2></div>
+        <button id="searchCloseBtn" class="close-tool" type="button" data-i18n-aria-label="search.close" aria-label="Suche schließen">×</button>
+      </div>
+      <div class="search-row">
+        <input id="youtubeSearchInput" data-i18n-placeholder="search.placeholder" placeholder="Auf YouTube suchen..." autocomplete="off">
+        <button id="youtubeSearchBtn" class="primary" data-i18n="common.search">Suchen</button>
+      </div>
+      <div id="searchStatus" class="search-status"></div>
+      <div id="searchResults" class="search-results"></div>
+    </section>
+
+    <section class="panel library-panel">
+      <div class="section-title files-head">
+        <div><div class="eyebrow" data-i18n="library.eyebrow">LIBRARY</div><h2 data-i18n="library.title">Fertige Dateien</h2></div>
+        <div class="library-tools">
+          <div class="filters" id="filters">
+            <button class="filter active" data-format="all" data-i18n="library.all">Alle</button>
+            <button class="filter" data-format="mp3">MP3</button>
+            <button class="filter" data-format="mp4">MP4</button>
+          </div>
+          <input id="searchInput" class="search" data-i18n-placeholder="library.search_placeholder" placeholder="Dateien suchen...">
+        </div>
+      </div>
+      <div id="files" class="files"></div>
+      <div class="library-bottom-actions">
+        <a id="downloadAllBtn" class="download-all" href="/api/download-all" data-i18n="library.download_all">Download All</a>
+        <button id="deleteAllBtn" class="danger-action" type="button" data-i18n="library.delete_all">Delete All</button>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="footer-brand"><span>V4 Media Downloader</span><span class="footer-dot">·</span><span>Made by <strong>V4M0N0S</strong></span></div>
+      <div class="footer-settings">
+        <div class="language-switcher">
+          <label for="languageSelect" data-i18n="language.label">Sprache</label>
+          <select id="languageSelect" aria-label="Language"></select>
+        </div>
+        <button id="cookieOpenBtn" class="footer-cookie-btn" type="button">
+          <span data-i18n="cookies.button">YouTube Cookies</span>
+          <span id="cookieStatus" class="cookie-status" data-i18n="cookies.inactive">nicht aktiv</span>
+        </button>
+      </div>
+    </footer>
+  </main>
+
+  <div id="toastStack" class="toast-stack" aria-live="polite" aria-atomic="true"></div>
+
+  <div id="bulkModal" class="modal" aria-hidden="true">
+    <div class="modal-backdrop" data-bulk-close></div>
+    <div class="modal-card bulk-modal-card">
+      <button id="bulkCloseBtn" class="modal-close" type="button" data-i18n-aria-label="bulk.close" aria-label="Schließen">×</button>
+      <div class="eyebrow" data-i18n="bulk.eyebrow">BULK IMPORT</div>
+      <h2 data-i18n="bulk.title">TXT-Liste importieren</h2>
+      <p class="dialog-copy" data-i18n="bulk.description">Eine URL pro Zeile. Leere Zeilen und Kommentare mit # werden ignoriert.</p>
+      <label class="bulk-format-field">
+        <span data-i18n="download.format_label">Ausgabeformat</span>
+        <select id="bulkFormatInput">
+          <option value="mp4" data-i18n="download.format_mp4">MP4 · Video</option>
+          <option value="mp3" data-i18n="download.format_mp3">MP3 · Audio</option>
+        </select>
+      </label>
+      <label class="bulk-file-button">
+        <span data-i18n="bulk.choose_file">TXT-Datei auswählen</span>
+        <input id="fileInput" type="file" accept=".txt,text/plain" hidden>
+      </label>
+    </div>
+  </div>
+
+
+  <div id="cookieModal" class="modal" aria-hidden="true">
+    <div class="modal-backdrop" data-cookie-close></div>
+    <div class="modal-card cookie-modal-card">
+      <button id="cookieCloseBtn" class="modal-close" type="button" data-i18n-aria-label="common.close" aria-label="Schließen">×</button>
+      <div class="eyebrow" data-i18n="cookies.eyebrow">YOUTUBE AUTH</div>
+      <h2 data-i18n="cookies.title">YouTube Cookies importieren</h2>
+      <p class="dialog-copy" data-i18n="cookies.description">Falls YouTube eine Bot-Prüfung verlangt, kannst du hier den Inhalt einer exportierten cookies.txt im Netscape-Format einfügen. Die Datei wird nur lokal auf diesem Server gespeichert.</p>
+      <div class="cookie-warning" data-i18n="cookies.warning">Cookies können Zugriff auf dein YouTube-Konto ermöglichen. Teile sie niemals und importiere sie nur auf einem Server, dem du vertraust.</div>
+      <textarea id="cookieText" class="cookie-textarea" spellcheck="false" data-i18n-placeholder="cookies.placeholder" placeholder="# Netscape HTTP Cookie File..."></textarea>
+      <div class="cookie-actions">
+        <button id="cookieDeleteBtn" class="danger-action" type="button" data-i18n="cookies.delete" hidden>Cookies entfernen</button>
+        <button id="cookieSaveBtn" class="primary" type="button" data-i18n="cookies.save">Cookies speichern</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="previewModal" class="modal" aria-hidden="true">
+    <div class="modal-backdrop" onclick="closePreview()"></div>
+    <div class="modal-card">
+      <button class="modal-close" onclick="closePreview()" data-i18n-aria-label="preview.close" aria-label="Vorschau schließen">×</button>
+      <div id="previewContent"></div>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

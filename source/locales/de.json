@@ -1,0 +1,173 @@
+{
+  "meta": {
+    "code": "de",
+    "name": "German",
+    "native_name": "Deutsch",
+    "locale": "de-DE"
+  },
+  "app": {
+    "tagline": "Make downloads great again!"
+  },
+  "language": {
+    "label": "Sprache"
+  },
+  "common": {
+    "paste": "Paste",
+    "search": "Suchen",
+    "close": "Schließen",
+    "info": "Info",
+    "success": "Erledigt",
+    "error": "Fehler",
+    "warning": "Hinweis",
+    "web": "Web",
+    "live": "Live",
+    "unknown_title": "Ohne Titel"
+  },
+  "active": {
+    "eyebrow": "ACTIVE",
+    "title": "Downloads",
+    "job": "Job",
+    "jobs": "Jobs",
+    "all_done": "Alle Downloads sind abgeschlossen."
+  },
+  "download": {
+    "eyebrow": "NEW DOWNLOAD",
+    "title": "Medium hinzufügen",
+    "url_label": "YouTube / Twitch Link",
+    "url_placeholder": "https://www.youtube.com/watch?v=... oder Twitch-Link",
+    "filename_label": "Dateiname optional",
+    "filename_placeholder": "z. B. Lustiger Clip",
+    "format_label": "Ausgabeformat",
+    "format_mp4": "MP4 · Video",
+    "format_mp3": "MP3 · Audio",
+    "analyze": "Link laden",
+    "analyzing": "Link wird geladen...",
+    "start": "Download starten",
+    "txt_list": "TXT-Liste",
+    "missing_url": "Bitte eine YouTube- oder Twitch-URL eingeben.",
+    "analyze_first": "Bitte zuerst eine YouTube- oder Twitch-URL eingeben.",
+    "analyze_failed": "Analyse fehlgeschlagen.",
+    "analyzed_title": "Link analysiert",
+    "analyzed": "Titel, Quelle und verfügbare Optionen wurden geladen.",
+    "start_failed": "Download konnte nicht gestartet werden.",
+    "queued": "Download wurde zur Warteschlange hinzugefügt.",
+    "upload_failed": "Upload fehlgeschlagen.",
+    "txt_imported_title": "TXT importiert",
+    "txt_imported": "{count} URLs wurden hinzugefügt.",
+    "clipboard_empty": "Zwischenablage ist leer.",
+    "clipboard_added": "Link eingefügt.",
+    "clipboard_blocked": "Clipboard-Zugriff wurde vom Browser blockiert.",
+    "link_action": "Link laden"
+  },
+  "analysis": {
+    "quality": "MP4 Qualität",
+    "best_quality": "Beste verfügbar",
+    "trim_start": "Start optional",
+    "trim_end": "Ende optional",
+    "twitch_vod": "Twitch VOD erkannt. Optional nur einen Ausschnitt laden.",
+    "twitch_clip": "Twitch Clip erkannt. Der Clip wird vollständig geladen.",
+    "qualities_found": "{count} Video-Auflösungen erkannt.",
+    "ready": "Medium ist bereit zum Download.",
+    "best_short": "Beste"
+  },
+  "search": {
+    "toggle": "YouTube suchen",
+    "eyebrow": "YOUTUBE SEARCH",
+    "title": "Direkte Suche",
+    "close": "Suche schließen",
+    "placeholder": "Auf YouTube suchen...",
+    "too_short": "Suchbegriff ist zu kurz.",
+    "searching": "YouTube wird durchsucht...",
+    "failed": "Suche fehlgeschlagen.",
+    "results": "{count} Treffer",
+    "no_results": "Keine Treffer gefunden.",
+    "use": "Auswählen & analysieren"
+  },
+  "library": {
+    "eyebrow": "LIBRARY",
+    "title": "Fertige Dateien",
+    "all": "Alle",
+    "search_placeholder": "Dateien suchen...",
+    "download_all": "Download All",
+    "delete_all": "Delete All",
+    "empty": "Keine passenden fertigen Dateien.",
+    "done": "Fertig",
+    "play": "Abspielen",
+    "copy_name": "Name kopieren",
+    "download": "Download",
+    "remove": "Entfernen",
+    "no_thumb": "NO THUMB",
+    "confirm_delete": "Wirklich löschen?\n\n{name}",
+    "delete_failed": "Löschen fehlgeschlagen.",
+    "deleted": "Datei und Thumbnail gelöscht.",
+    "confirm_delete_all": "Wirklich ALLE {count} fertigen Dateien inklusive Thumbnails löschen?\n\nDas kann nicht rückgängig gemacht werden.",
+    "delete_all_failed": "Delete All fehlgeschlagen.",
+    "deleted_all": "{count} Dateien gelöscht.",
+    "filename_copied": "Dateiname kopiert.",
+    "copy_failed": "Kopieren nicht möglich."
+  },
+  "jobs": {
+    "retry": "Erneut",
+    "remove": "Entfernen",
+    "eta": "ETA",
+    "clip": "Ausschnitt",
+    "start": "Start",
+    "end": "Ende",
+    "action_failed": "Aktion nicht möglich."
+  },
+  "status": {
+    "waiting": "Wartend",
+    "starting": "Startet",
+    "downloading": "Download",
+    "converting": "Konvertierung",
+    "finished": "Fertig",
+    "error": "Fehler"
+  },
+  "stage": {
+    "Warteschlange": "Warteschlange",
+    "Wird gestartet": "Wird gestartet",
+    "Medium wird analysiert": "Medium wird analysiert",
+    "Download": "Download",
+    "Download abgeschlossen": "Download abgeschlossen",
+    "MP3 wird erstellt": "MP3 wird erstellt",
+    "MP4 wird verarbeitet": "MP4 wird verarbeitet",
+    "Fertig": "Fertig",
+    "Fehler": "Fehler"
+  },
+  "stats": {
+    "active": "Aktiv",
+    "waiting": "Wartend",
+    "done": "Fertig",
+    "storage": "Speicher"
+  },
+  "preview": {
+    "close": "Vorschau schließen"
+  },
+  "bulk": {
+    "eyebrow": "BULK IMPORT",
+    "title": "TXT-Liste importieren",
+    "description": "Eine URL pro Zeile. Leere Zeilen und Kommentare mit # werden ignoriert.",
+    "choose_file": "TXT-Datei auswählen",
+    "close": "Bulk-Import schließen"
+  },
+  "cookies": {
+    "button": "YouTube Cookies",
+    "active": "aktiv",
+    "inactive": "nicht aktiv",
+    "unknown": "unbekannt",
+    "eyebrow": "YOUTUBE AUTH",
+    "title": "YouTube Cookies importieren",
+    "description": "Falls YouTube eine Bot-Prüfung verlangt, kannst du hier den Inhalt einer exportierten cookies.txt im Netscape-Format einfügen. Die Datei wird nur lokal auf diesem Server gespeichert.",
+    "warning": "Cookies können Zugriff auf dein YouTube-Konto ermöglichen. Teile sie niemals und importiere sie nur auf einem Server, dem du vertraust.",
+    "placeholder": "# Netscape HTTP Cookie File\\n.youtube.com\\tTRUE\\t/\\tTRUE\\t...",
+    "save": "Cookies speichern",
+    "delete": "Cookies entfernen",
+    "empty": "Bitte zuerst Cookie-Inhalt einfügen.",
+    "save_failed": "Cookies konnten nicht gespeichert werden.",
+    "saved": "YouTube-Cookies wurden lokal gespeichert und werden ab dem nächsten Request verwendet.",
+    "saved_title": "Cookies aktiv",
+    "delete_confirm": "Gespeicherte YouTube-Cookies wirklich entfernen?",
+    "delete_failed": "Cookies konnten nicht entfernt werden.",
+    "deleted": "Gespeicherte YouTube-Cookies wurden entfernt."
+  }
+}
