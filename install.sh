@@ -119,6 +119,34 @@ log "Installing Python dependencies..."
 "$INSTALL_DIR/.venv/bin/python" -m pip install --upgrade pip wheel
 "$INSTALL_DIR/.venv/bin/pip" install -r "$INSTALL_DIR/requirements.txt"
 
+log "Installing YouTube PO Token provider..."
+"$INSTALL_DIR/.venv/bin/pip" install --upgrade bgutil-ytdlp-pot-provider
+
+log "Checking YouTube PO Token provider..."
+
+PO_PROVIDER_OUTPUT="$(
+    "$INSTALL_DIR/.venv/bin/yt-dlp" -v \
+    --skip-download \
+    "https://www.youtube.com/watch?v=dQw4w9WgXcQ" \
+    2>&1 || true
+)"
+
+PO_PROVIDER_LINE="$(
+    printf '%s\n' "$PO_PROVIDER_OUTPUT" \
+    | grep -i "PO Token Providers" \
+    | tail -n 1 \
+    || true
+)"
+
+if printf '%s\n' "$PO_PROVIDER_LINE" | grep -qi "bgutil"; then
+    ok "YouTube PO Token provider detected."
+    log "$PO_PROVIDER_LINE"
+else
+    warn "YouTube PO Token provider was not detected."
+    warn "YouTube downloads may fail with HTTP 403."
+    warn "Provider status: ${PO_PROVIDER_LINE:-unknown}"
+fi
+
 if [[ ! -f "$CONFIG_FILE" ]]; then
     log "Creating configuration at $CONFIG_FILE"
     cat > "$CONFIG_FILE" <<EOF
