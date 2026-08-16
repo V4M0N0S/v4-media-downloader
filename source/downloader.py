@@ -19,9 +19,11 @@ except ImportError:
 DOWNLOAD_DIR = Path(os.getenv('V4MD_DOWNLOAD_DIR', '/var/lib/v4-media-downloader/downloads')).expanduser()
 WORK_DIR = Path(os.getenv('V4MD_WORK_DIR', '/var/lib/v4-media-downloader/work')).expanduser()
 THUMB_DIR = Path(os.getenv('V4MD_THUMB_DIR', '/var/lib/v4-media-downloader/thumbnails')).expanduser()
+BGUTIL_SERVER_DIR = Path(os.getenv("V4MD_BGUTIL_SERVER_DIR", "/opt/bgutil-ytdlp-pot-provider/server")).expanduser()
 DOWNLOAD_DIR.mkdir(parents=True, exist_ok=True)
 WORK_DIR.mkdir(parents=True, exist_ok=True)
 THUMB_DIR.mkdir(parents=True, exist_ok=True)
+
 
 jobs = []
 jobs_lock = threading.Lock()
@@ -55,13 +57,28 @@ def detect_media_kind(url: str, info=None) -> str:
 
 def common_ydl_options():
     options = {
-        'remote_components': {'ejs:github'},
-        'quiet': True,
-        'no_warnings': True,
+        "remote_components": {"ejs:github"},
+        "quiet": True,
+        "no_warnings": True,
     }
-    cookie_file = os.getenv('YTDLP_COOKIE_FILE', '').strip()
+
+    if BGUTIL_SERVER_DIR.is_dir():
+        options["extractor_args"] = {
+            "youtubepot-bgutilscript": {
+                "server_home": [
+                    str(BGUTIL_SERVER_DIR)
+                ]
+            }
+        }
+
+    cookie_file = os.getenv(
+        "YTDLP_COOKIE_FILE",
+        ""
+    ).strip()
+
     if cookie_file and os.path.isfile(cookie_file):
-        options['cookiefile'] = cookie_file
+        options["cookiefile"] = cookie_file
+
     return options
 
 

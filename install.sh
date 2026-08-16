@@ -15,8 +15,12 @@ THUMB_DIR="${V4MD_THUMB_DIR:-$DATA_DIR/thumbnails}"
 WORK_DIR="${V4MD_WORK_DIR:-$DATA_DIR/work}"
 COOKIE_FILE="${V4MD_COOKIE_FILE:-$CONFIG_DIR/youtube-cookies.txt}"
 
-SERVICE_FILE="/etc/systemd/system/v4-media-downloader.service"
 SERVICE_NAME="v4-media-downloader"
+SERVICE_FILE="/etc/systemd/system/${SERVICE_NAME}.service"
+
+BGUTIL_VERSION="1.3.1"
+BGUTIL_DIR="/opt/bgutil-ytdlp-pot-provider"
+BGUTIL_SERVER_DIR="${BGUTIL_DIR}/server"
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 ZIP_PATH="${1:-${V4MD_ZIP_PATH:-$SCRIPT_DIR/latest.zip}}"
@@ -35,6 +39,7 @@ apt-get update
 apt-get install -y \
     ca-certificates \
     curl \
+    git \
     unzip \
     ffmpeg \
     python3 \
@@ -43,19 +48,17 @@ apt-get install -y \
 
 if ! command -v deno >/dev/null 2>&1; then
     log "Installing Deno..."
-    tmp_deno="$(mktemp -d)"
-    curl -fsSL https://deno.land/install.sh | DENO_INSTALL="$tmp_deno/deno" sh
-    install -m 0755 "$tmp_deno/deno/bin/deno" /usr/local/bin/deno
-    rm -rf "$tmp_deno"
+    TMP_DENO="$(mktemp -d)"
+    curl -fsSL https://deno.land/install.sh | DENO_INSTALL="$TMP_DENO/deno" sh
+    install -m 0755 "$TMP_DENO/deno/bin/deno" /usr/local/bin/deno
+    rm -rf "$TMP_DENO"
+    ok "Deno installed."
 else
     ok "Deno is already installed."
 fi
 
 if [[ ! -f "$ZIP_PATH" ]]; then
-    log "latest.zip was not found locally."
-    log "Downloading the latest release from GitHub..."
-    log "$DOWNLOAD_URL"
-
+    log "Downloading latest release..."
     curl \
         --fail \
         --location \
@@ -66,7 +69,7 @@ if [[ ! -f "$ZIP_PATH" ]]; then
         "$DOWNLOAD_URL"
 
     [[ -s "$ZIP_PATH" ]] || die "Downloaded package is empty."
-    ok "Latest release downloaded successfully."
+    ok "Latest release downloaded."
 else
     ok "Using local package: $ZIP_PATH"
 fi
@@ -82,7 +85,7 @@ trap cleanup EXIT
 log "Validating package..."
 unzip -tq "$ZIP_PATH" >/dev/null || die "ZIP file is corrupted."
 
-log "Extracting $(basename "$ZIP_PATH")..."
+log "Extracting package..."
 mkdir -p "$TMP_DIR/app"
 unzip -q "$ZIP_PATH" -d "$TMP_DIR/app"
 
@@ -95,24 +98,24 @@ if systemctl list-unit-files "$SERVICE_NAME.service" >/dev/null 2>&1; then
 fi
 
 if [[ -d "$INSTALL_DIR" ]]; then
-    stamp="$(date +%Y%m%d-%H%M%S)"
-    BACKUP_DIR="${INSTALL_DIR}.backup-${stamp}"
-    log "Backing up existing installation to $BACKUP_DIR"
+    BACKUP_DIR="${INSTALL_DIR}.backup-$(date +%Y%m%d-%H%M%S)"
+    log "Creating backup: $BACKUP_DIR"
     mv "$INSTALL_DIR" "$BACKUP_DIR"
 fi
 
-log "Installing application files..."
+log "Installing application..."
 mkdir -p "$INSTALL_DIR"
 cp -a "$TMP_DIR/app/." "$INSTALL_DIR/"
 
 log "Creating application directories..."
-install -d -m 0755 "$CONFIG_DIR"
-install -d -m 0755 "$DATA_DIR"
-install -d -m 0755 "$DOWNLOAD_DIR"
-install -d -m 0755 "$THUMB_DIR"
-install -d -m 0755 "$WORK_DIR"
+install -d -m 0755 \
+    "$CONFIG_DIR" \
+    "$DATA_DIR" \
+    "$DOWNLOAD_DIR" \
+    "$THUMB_DIR" \
+    "$WORK_DIR"
 
-log "Creating Python virtual environment..."
+log "Creating Python environment..."
 python3 -m venv "$INSTALL_DIR/.venv"
 
 log "Installing Python dependencies..."
@@ -120,35 +123,55 @@ log "Installing Python dependencies..."
 "$INSTALL_DIR/.venv/bin/pip" install -r "$INSTALL_DIR/requirements.txt"
 
 log "Installing YouTube PO Token provider..."
-"$INSTALL_DIR/.venv/bin/pip" install --upgrade bgutil-ytdlp-pot-provider
+"$INSTALL_DIR/.venv/bin/pip" install --upgrade \
+    "bgutil-ytdlp-pot-provider==$BGUTIL_VERSION"
+
+log "Installing PO Token generator..."
+rm -rf "$BGUTIL_DIR"
+
+git clone \
+    --quiet \
+    --depth 1 \
+    --single-branch \
+    --branch "$BGUTIL_VERSION" \
+    https://github.com/Brainicism/bgutil-ytdlp-pot-provider.git \
+    "$BGUTIL_DIR"
+
+[[ -d "$BGUTIL_SERVER_DIR" ]] || die "PO Token generator installation failed."
+
+log "Installing PO Token generator dependencies..."
+(
+    cd "$BGUTIL_SERVER_DIR"
+    deno install --allow-scripts=npm:canvas --frozen
+)
 
 log "Checking YouTube PO Token provider..."
 
 PO_PROVIDER_OUTPUT="$(
-    "$INSTALL_DIR/.venv/bin/yt-dlp" -v \
-    --skip-download \
-    "https://www.youtube.com/watch?v=dQw4w9WgXcQ" \
-    2>&1 || true
+    "$INSTALL_DIR/.venv/bin/yt-dlp" \
+        -v \
+        --skip-download \
+        --extractor-args "youtubepot-bgutilscript:server_home=$BGUTIL_SERVER_DIR" \
+        "https://www.youtube.com/watch?v=dQw4w9WgXcQ" \
+        2>&1 || true
 )"
 
 PO_PROVIDER_LINE="$(
     printf '%s\n' "$PO_PROVIDER_OUTPUT" \
-    | grep -i "PO Token Providers" \
-    | tail -n 1 \
-    || true
+        | grep -i "PO Token Providers" \
+        | tail -n 1 || true
 )"
 
-if printf '%s\n' "$PO_PROVIDER_LINE" | grep -qi "bgutil"; then
-    ok "YouTube PO Token provider detected."
+if printf '%s\n' "$PO_PROVIDER_LINE" | grep -Eqi 'script-deno[^,]*(external\)|available)'; then
+    ok "Deno PO Token provider is available."
     log "$PO_PROVIDER_LINE"
 else
-    warn "YouTube PO Token provider was not detected."
-    warn "YouTube downloads may fail with HTTP 403."
+    warn "Deno PO Token provider is not available."
     warn "Provider status: ${PO_PROVIDER_LINE:-unknown}"
 fi
 
 if [[ ! -f "$CONFIG_FILE" ]]; then
-    log "Creating configuration at $CONFIG_FILE"
+    log "Creating configuration..."
     cat > "$CONFIG_FILE" <<EOF
 DISCORD_WEBHOOK_URL=""
 YTDLP_COOKIE_FILE="$COOKIE_FILE"
@@ -165,9 +188,7 @@ else
     ok "Existing configuration will be preserved."
 fi
 
-if [[ -f "$COOKIE_FILE" ]]; then
-    chmod 600 "$COOKIE_FILE"
-fi
+[[ -f "$COOKIE_FILE" ]] && chmod 600 "$COOKIE_FILE"
 
 log "Creating systemd service..."
 cat > "$SERVICE_FILE" <<EOF
@@ -189,12 +210,12 @@ RestartSec=3
 WantedBy=multi-user.target
 EOF
 
-log "Enabling and starting service..."
+log "Starting service..."
 systemctl daemon-reload
 systemctl enable "$SERVICE_NAME" >/dev/null
 systemctl restart "$SERVICE_NAME"
 
-log "Installing local updater helper..."
+log "Installing updater helper..."
 install -d -m 0755 /usr/local/lib/v4-media-downloader
 install -m 0755 "$0" /usr/local/lib/v4-media-downloader/install.sh
 
@@ -203,21 +224,21 @@ sleep 1
 if systemctl is-active --quiet "$SERVICE_NAME"; then
     ok "$APP_NAME is running."
 else
-    warn "Service is not active. Recent logs:"
+    warn "Service failed to start. Recent logs:"
     journalctl -u "$SERVICE_NAME" -n 30 --no-pager || true
     die "Installation failed."
 fi
 
-if [[ -n "$BACKUP_DIR" ]]; then
-    log "Previous version backup: $BACKUP_DIR"
-fi
+[[ -n "$BACKUP_DIR" ]] && log "Previous version backup: $BACKUP_DIR"
 
 ok "Installation completed successfully."
+
 echo
-echo "Application directory: $INSTALL_DIR"
-echo "Configuration file: $CONFIG_FILE"
-echo "Download directory: $DOWNLOAD_DIR"
-echo "Thumbnail directory: $THUMB_DIR"
-echo "Work directory: $WORK_DIR"
+echo "Application:   $INSTALL_DIR"
+echo "Configuration: $CONFIG_FILE"
+echo "Downloads:     $DOWNLOAD_DIR"
+echo "Thumbnails:    $THUMB_DIR"
+echo "Work:          $WORK_DIR"
+echo "PO Provider:   $BGUTIL_DIR"
 echo "Web interface: http://SERVER-IP:${V4MD_PORT:-5000}"
-echo "Logs: journalctl -u $SERVICE_NAME -f"
+echo "Logs:          journalctl -u $SERVICE_NAME -f"
