@@ -55,27 +55,28 @@ def detect_media_kind(url: str, info=None) -> str:
     return 'media'
 
 
-def common_ydl_options():
+def common_ydl_options(url=None):
     options = {
         "remote_components": {"ejs:github"},
         "quiet": True,
         "no_warnings": True,
     }
 
-    if BGUTIL_SERVER_DIR.is_dir():
-        options["extractor_args"] = {
-            "youtubepot-bgutilscript": {
-                "server_home": [
-                    str(BGUTIL_SERVER_DIR)
-                ]
+    if detect_source(url or '') == 'YouTube':
+        extractor_args = {
+            "youtube": {
+                "player_client": ["mweb"]
             }
         }
 
-    cookie_file = os.getenv(
-        "YTDLP_COOKIE_FILE",
-        ""
-    ).strip()
+        if BGUTIL_SERVER_DIR.is_dir():
+            extractor_args["youtubepot-bgutilscript"] = {
+                "server_home": [str(BGUTIL_SERVER_DIR)]
+            }
 
+        options["extractor_args"] = extractor_args
+
+    cookie_file = os.getenv("YTDLP_COOKIE_FILE", "").strip()
     if cookie_file and os.path.isfile(cookie_file):
         options["cookiefile"] = cookie_file
 
@@ -106,7 +107,7 @@ def analyze_url(url: str):
     if not url:
         raise ValueError('No URL provided.')
 
-    options = common_ydl_options()
+    options = common_ydl_options(url)
     options.update({'noplaylist': True, 'skip_download': True})
     with yt_dlp.YoutubeDL(options) as ydl:
         info = ydl.extract_info(url, download=False)
@@ -141,7 +142,7 @@ def analyze_url(url: str):
 
 def search_youtube(query: str, limit: int = 8):
     limit = max(1, min(int(limit), 20))
-    options = common_ydl_options()
+    options = common_ydl_options('https://www.youtube.com/')
     options.update({'extract_flat': True, 'skip_download': True, 'noplaylist': True})
     with yt_dlp.YoutubeDL(options) as ydl:
         info = ydl.extract_info(f'ytsearch{limit}:{query}', download=False)
@@ -243,6 +244,8 @@ def add_urls(items):
                 'eta': None,
                 'filename': None,
                 'error': None,
+                'actual_quality': None,
+                'fallback_used': False,
                 'created_at': int(time.time()),
             }
             jobs.append(job)
@@ -282,6 +285,7 @@ def retry_job(job_id):
                     'status': 'waiting', 'stage': 'Queued', 'progress': 0,
                     'download_progress': 0, 'convert_progress': 0,
                     'speed': None, 'eta': None, 'error': None,
+                    'actual_quality': None, 'fallback_used': False,
                 })
                 worker_wakeup.set()
                 return True
@@ -354,7 +358,7 @@ def notify_discord(job, output_file):
         stat = os.stat(output_file)
         size_mb = stat.st_size / (1024 * 1024)
         fmt = (job.get('format') or 'mp3').upper()
-        quality = job.get('quality') or 'best'
+        quality = job.get('actual_quality') or job.get('quality') or 'best'
         source = job.get('source') or detect_source(job.get('url', ''))
         duration = human_duration(job.get('media_duration'))
         created_at = job.get('created_at')
@@ -366,9 +370,14 @@ def notify_discord(job, output_file):
             {'name': 'Source', 'value': source, 'inline': True},
         ]
         if fmt == 'MP4':
+            quality_value = 'Best available' if quality == 'best' else f'{quality}p'
+
+            if job.get('fallback_used'):
+                quality_value += ' · Progressive fallback'
+
             fields.append({
                 'name': 'Quality',
-                'value': 'Best available' if quality == 'best' else f'{quality}p',
+                'value': quality_value,
                 'inline': True,
             })
         if duration:
@@ -470,25 +479,149 @@ def convert_to_mp3(job_id, input_file, title):
     return str(final_file)
 
 
+def progressive_mp4_format_selector(quality='best'):
+    if quality == 'best':
+        return 'b[ext=mp4]/b'
+
+    h = int(quality)
+    return f'b[ext=mp4][height<={h}]/b[height<={h}]/best'
+
+
+def is_http_403_error(exc):
+    seen = set()
+    current = exc
+
+    while current is not None and id(current) not in seen:
+        seen.add(id(current))
+        value = str(current).lower()
+
+        if 'http error 403' in value or '403: forbidden' in value:
+            return True
+
+        current = (
+            getattr(current, '__cause__', None)
+            or getattr(current, '__context__', None)
+        )
+
+    return False
+
+
+def clean_job_download_files(job_dir):
+    if not job_dir.exists():
+        return
+
+    for item in job_dir.iterdir():
+        try:
+            if item.is_dir():
+                shutil.rmtree(item, ignore_errors=True)
+            else:
+                item.unlink(missing_ok=True)
+        except OSError:
+            pass
+
+
+def get_video_height(filename):
+    try:
+        result = subprocess.run(
+            [
+                'ffprobe',
+                '-v', 'error',
+                '-select_streams', 'v:0',
+                '-show_entries', 'stream=height',
+                '-of', 'default=noprint_wrappers=1:nokey=1',
+                str(filename),
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=15,
+        )
+
+        if result.returncode == 0:
+            value = result.stdout.strip()
+            if value.isdigit():
+                return int(value)
+    except Exception:
+        pass
+
+    return None
+
+
 def download_audio(job):
     job_id = job['id']
     job_dir = WORK_DIR / job_id
     job_dir.mkdir(parents=True, exist_ok=True)
-    options = common_ydl_options()
-    options.update({
-        'format': 'bestaudio/best',
-        'outtmpl': str(job_dir / '%(id)s.%(ext)s'),
-        'noplaylist': True,
-        'progress_hooks': [make_hook(job_id, 50)],
-        'postprocessors': [],
-    })
-    options.update(range_options(job))
-    update_job(job_id, status='downloading', stage='Analyzing media', progress=0)
-    with yt_dlp.YoutubeDL(options) as ydl:
-        info = ydl.extract_info(job['url'], download=True)
-        title = info.get('title') or 'Unknown video'
-        filename = ydl.prepare_filename(info)
-        update_job(job_id, title=title, thumbnail=best_thumbnail(info), download_progress=100, progress=50)
+
+    update_job(
+        job_id,
+        status='downloading',
+        stage='Analyzing media',
+        progress=0,
+    )
+
+    def build_options(format_selector):
+        options = common_ydl_options(job['url'])
+        options.update({
+            'format': format_selector,
+            'outtmpl': str(job_dir / '%(id)s.%(ext)s'),
+            'noplaylist': True,
+            'continuedl': False,
+            'progress_hooks': [make_hook(job_id, 50)],
+            'postprocessors': [],
+        })
+        options.update(range_options(job))
+        return options
+
+    try:
+        with yt_dlp.YoutubeDL(build_options('bestaudio/best')) as ydl:
+            info = ydl.extract_info(job['url'], download=True)
+            title = info.get('title') or 'Unknown video'
+            filename = ydl.prepare_filename(info)
+
+    except yt_dlp.utils.DownloadError as exc:
+        if detect_source(job['url']) != 'YouTube' or not is_http_403_error(exc):
+            raise
+
+        print(
+            f"[V4MD] Job {job_id}: YouTube audio download failed with HTTP 403. "
+            "Retrying with progressive media fallback.",
+            flush=True,
+        )
+
+        clean_job_download_files(job_dir)
+        update_job(
+            job_id,
+            status='downloading',
+            stage='Fallback download',
+            progress=0,
+            download_progress=0,
+            convert_progress=0,
+            speed=None,
+            eta=None,
+            error=None,
+            fallback_used=True,
+        )
+
+        with yt_dlp.YoutubeDL(
+            build_options(progressive_mp4_format_selector('best'))
+        ) as ydl:
+            info = ydl.extract_info(job['url'], download=True)
+            title = info.get('title') or 'Unknown video'
+            filename = ydl.prepare_filename(info)
+
+        print(
+            f"[V4MD] Job {job_id}: progressive audio fallback completed.",
+            flush=True,
+        )
+
+    update_job(
+        job_id,
+        title=title,
+        thumbnail=best_thumbnail(info),
+        download_progress=100,
+        progress=50,
+    )
+
     return filename, title
 
 
@@ -507,58 +640,172 @@ def download_mp4(job):
     job_id = job['id']
     job_dir = WORK_DIR / job_id
     job_dir.mkdir(parents=True, exist_ok=True)
-    update_job(job_id, status='downloading', stage='Analyzing media', progress=0)
 
-    metadata_options = common_ydl_options()
-    metadata_options.update({'noplaylist': True, 'skip_download': True})
+    update_job(
+        job_id,
+        status='downloading',
+        stage='Analyzing media',
+        progress=0,
+    )
+
+    metadata_options = common_ydl_options(job['url'])
+    metadata_options.update({
+        'noplaylist': True,
+        'skip_download': True,
+    })
+
     with yt_dlp.YoutubeDL(metadata_options) as ydl:
         info = ydl.extract_info(job['url'], download=False)
 
     title = info.get('title') or 'Unknown video'
     base_name = safe_filename(job.get('custom_name') or title)
     output_template = str(job_dir / f'{base_name}.%(ext)s')
-    update_job(job_id, title=title, thumbnail=best_thumbnail(info))
+
+    update_job(
+        job_id,
+        title=title,
+        thumbnail=best_thumbnail(info),
+    )
 
     def post_hook(data):
         status = data.get('status')
+
         if status == 'started':
-            update_job(job_id, status='converting', stage='Processing MP4', progress=95)
+            update_job(
+                job_id,
+                status='converting',
+                stage='Processing MP4',
+                progress=95,
+            )
         elif status == 'finished':
-            update_job(job_id, progress=99, convert_progress=100)
+            update_job(
+                job_id,
+                progress=99,
+                convert_progress=100,
+            )
 
-    options = common_ydl_options()
-    options.update({
-        'format': mp4_format_selector(job.get('quality', 'best')),
-        'outtmpl': output_template,
-        'merge_output_format': 'mp4',
-        'noplaylist': True,
-        'progress_hooks': [make_hook(job_id, 95)],
-        'postprocessor_hooks': [post_hook],
-    })
-    options.update(range_options(job))
+    def build_options(format_selector):
+        options = common_ydl_options(job['url'])
+        options.update({
+            'format': format_selector,
+            'outtmpl': output_template,
+            'merge_output_format': 'mp4',
+            'noplaylist': True,
+            'continuedl': False,
+            'progress_hooks': [make_hook(job_id, 95)],
+            'postprocessor_hooks': [post_hook],
+        })
+        options.update(range_options(job))
+        return options
 
-    with yt_dlp.YoutubeDL(options) as ydl:
-        ydl.download([job['url']])
+    primary_format = mp4_format_selector(job.get('quality', 'best'))
+    used_fallback = False
+
+    try:
+        with yt_dlp.YoutubeDL(build_options(primary_format)) as ydl:
+            ydl.download([job['url']])
+
+    except yt_dlp.utils.DownloadError as exc:
+        if detect_source(job['url']) != 'YouTube' or not is_http_403_error(exc):
+            raise
+
+        used_fallback = True
+
+        print(
+            f"[V4MD] Job {job_id}: YouTube DASH download failed with HTTP 403. "
+            "Retrying with progressive MP4 fallback.",
+            flush=True,
+        )
+
+        clean_job_download_files(job_dir)
+
+        update_job(
+            job_id,
+            status='downloading',
+            stage='Fallback download',
+            progress=0,
+            download_progress=0,
+            convert_progress=0,
+            speed=None,
+            eta=None,
+            error=None,
+            fallback_used=True,
+        )
+
+        fallback_format = progressive_mp4_format_selector(
+            job.get('quality', 'best')
+        )
+
+        try:
+            with yt_dlp.YoutubeDL(build_options(fallback_format)) as ydl:
+                ydl.download([job['url']])
+        except yt_dlp.utils.DownloadError:
+            clean_job_download_files(job_dir)
+
+            print(
+                f"[V4MD] Job {job_id}: quality-aware fallback failed. "
+                "Retrying with best progressive MP4.",
+                flush=True,
+            )
+
+            with yt_dlp.YoutubeDL(
+                build_options(progressive_mp4_format_selector('best'))
+            ) as ydl:
+                ydl.download([job['url']])
+
+        print(
+            f"[V4MD] Job {job_id}: progressive MP4 fallback completed.",
+            flush=True,
+        )
 
     temp_output = job_dir / f'{base_name}.mp4'
+
     if not temp_output.exists():
-        candidates = sorted(job_dir.glob(f'{base_name}.*'), key=lambda p: p.stat().st_mtime, reverse=True)
+        candidates = sorted(
+            job_dir.glob(f'{base_name}.*'),
+            key=lambda p: p.stat().st_mtime,
+            reverse=True,
+        )
+
         if candidates:
             candidate = candidates[0]
+
             if candidate.suffix.lower() != '.mp4':
                 converted = job_dir / f'{base_name}.mp4'
-                subprocess.run(['ffmpeg', '-y', '-i', str(candidate), '-c', 'copy', str(converted)],
-                               check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+                subprocess.run(
+                    [
+                        'ffmpeg',
+                        '-y',
+                        '-i', str(candidate),
+                        '-c', 'copy',
+                        str(converted),
+                    ],
+                    check=True,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
+
                 candidate.unlink(missing_ok=True)
                 temp_output = converted
             else:
                 temp_output = candidate
+
     if not temp_output.exists():
         raise RuntimeError('MP4 file was not found after download.')
+
+    actual_height = get_video_height(temp_output)
+
+    update_job(
+        job_id,
+        actual_quality=str(actual_height) if actual_height else None,
+        fallback_used=used_fallback,
+    )
 
     final_file = DOWNLOAD_DIR / f'{base_name}.mp4'
     os.replace(temp_output, final_file)
     shutil.rmtree(job_dir, ignore_errors=True)
+
     finish_job(job_id, str(final_file))
     return str(final_file)
 
