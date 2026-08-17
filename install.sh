@@ -49,9 +49,13 @@ apt-get install -y \
 if ! command -v deno >/dev/null 2>&1; then
     log "Installing Deno..."
     TMP_DENO="$(mktemp -d)"
-    curl -fsSL https://deno.land/install.sh | DENO_INSTALL="$TMP_DENO/deno" sh
+
+    curl -fsSL https://deno.land/install.sh \
+        | DENO_INSTALL="$TMP_DENO/deno" sh -s -- -y
+
     install -m 0755 "$TMP_DENO/deno/bin/deno" /usr/local/bin/deno
     rm -rf "$TMP_DENO"
+
     ok "Deno installed."
 else
     ok "Deno is already installed."
